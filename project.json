@@ -34,7 +34,8 @@
 
   "publishOptions": {
     "include": [
-      "appsettings.json"
+      "appsettings.json",
+      "start.sh"
     ]
   },
 
