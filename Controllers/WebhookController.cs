@@ -10,6 +10,7 @@ namespace git_webhook_server.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] dynamic data)
         {
+	    System.Diagnostics.Process.Start("start.sh");
             return Ok();
         }
     }
