@@ -1,16 +1,53 @@
-﻿using System.Threading.Tasks;
+﻿using System;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace git_webhook_server.Controllers
 {
     [Route("api/[controller]")]
     public class WebhookController : Controller
     {
+        private readonly IOptions<WebHookOptions> _options;
+        private readonly ILogger<WebhookController> _log;
+
+        public WebhookController(IOptions<WebHookOptions> options, ILogger<WebhookController> log)
+        {
+            _options = options;
+            _log = log;
+        }
+
         // GET api/webhook
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] dynamic data)
+        public IActionResult Post([FromBody] dynamic data)
         {
-	    System.Diagnostics.Process.Start("start.sh");
+            if (data == null)
+            {
+                return Ok();
+            }
+
+            try
+            {
+                _log.LogDebug($"Input data: {data}");
+                foreach (var rule in _options.Value.Rules)
+                {
+                    _log.LogDebug($"Try rule {rule.Name}");
+                    if (((string) data["ref"]).Equals(rule.Match, StringComparison.OrdinalIgnoreCase))
+                    {
+                        _log.LogInformation($"Rule {rule.Name} matches by {rule.Match}.");
+                        _log.LogInformation($"Start {rule.Execute}");
+                        System.Diagnostics.Process.Start(rule.Execute);
+                        return Ok();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(1, ex, "Unexpected error");
+                return Ok();
+            }
+
+            _log.LogInformation("No matching rule found");
             return Ok();
         }
     }
