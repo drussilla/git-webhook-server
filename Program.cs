@@ -14,7 +14,7 @@ namespace git_webhook_server
         {
             var host = new WebHostBuilder()
                 .UseKestrel()
-                //.UseUrls(args)
+                .UseUrls(args)
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseStartup<Startup>()
                 .Build();
