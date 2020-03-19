@@ -1,4 +1,5 @@
 ﻿using System;
+using git_webhook_server.PayloadModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -19,20 +20,20 @@ namespace git_webhook_server.Controllers
 
         // GET api/webhook
         [HttpPost]
-        public IActionResult Post([FromBody] dynamic data)
+        public IActionResult Post([FromBody] PushEventPayload payload)
         {
-            if (data == null)
+            if (payload == null)
             {
                 return Ok();
             }
 
             try
             {
-                _log.LogDebug($"Input data: {data}");
+                _log.LogDebug($"Input data: {payload}");
                 foreach (var rule in _options.Value.Rules)
                 {
                     _log.LogDebug($"Try rule {rule.Name}");
-                    if (((string) data["ref"]).Equals(rule.Match, StringComparison.OrdinalIgnoreCase))
+                    if (payload.Ref.Equals(rule.Match, StringComparison.OrdinalIgnoreCase))
                     {
                         _log.LogInformation($"Rule {rule.Name} matches by {rule.Match}.");
                         _log.LogInformation($"Start {rule.Execute}");
@@ -43,7 +44,7 @@ namespace git_webhook_server.Controllers
             }
             catch (Exception ex)
             {
-                _log.LogError(1, ex, "Unexpected error");
+                _log.LogError(ex, "Unexpected error");
                 return Ok();
             }
 
