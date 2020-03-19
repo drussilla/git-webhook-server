@@ -20,6 +20,7 @@ namespace git_webhook_server
         {
             services.AddControllers();
             services.Configure<WebHookOptions>(Configuration);
+            services.Configure<SecretOptions>(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -31,8 +32,6 @@ namespace git_webhook_server
             }
 
             app.UseRouting();
-
-            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
