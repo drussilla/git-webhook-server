@@ -151,23 +151,36 @@ dotnet publish -r linux-x64 -o ~/linux-x64 -c Release
 supervisorctl start git-webhook-server
 ```
 
+**Note:**:
+In order to restart it self we need to run `build_and_restart.sh` though a *"proxy"* script. Because when we stop the partner process (in our case `git-webhook-server`) all it's child processes will terminate and two last lines will never be executed.
+You do not need this *"proxy"* script if you restarting another application.
+
+That is why we need to run `run_in_tmux.sh` script as a *"proxy"*:
+
+```bash
+#!/bin/bash
+tmux new -d -s proxy ./build_and_restart.sh
+```
+
 **Prerequisites:**
 
 - Git repo is cloned to `~/git-webhook-server`
 - Supervisor is installed and configured to run app from: `~/linux-x64` folder
 - GitHub WebHook is configured
+- `tmux` is installed
 - `appsettings.json` has the following rule:
 
 ```json
 {
     "Name": "master",
     "Match": "refs/heads/master",
-    "Execute": "build_and_restart.sh"
+    "Execute": "run_in_tmux.sh"
 },
 ```
 
 - `build_and_restart.sh` script is in the `~/linux-x64` folder
-- You have permission to run supervisorctl as a regular user (`/etc/supervisor/supervisord.conf`):
+- `run_in_tmux.sh` script is in the `~/linux-x64` folder
+- You have permission to run supervisorctl as a regular user (edit `/etc/supervisor/supervisord.conf` and restart `supervisord`):
 
 ```ini
 [unix_http_server]
