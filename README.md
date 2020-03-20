@@ -2,21 +2,113 @@
 
 React to [GitHub webhook events](https://developer.github.com/webhooks/) and run custom scripts on your server. This is useful if you want to setup simple continious integration and\or deployment.
 
-## How does it work?
+## Description
 
-It listens on the configured port (http://localhost:5000 by default) and have only one API endpoint `POST /api/webhook`. When it receives payload form GitHub, it will loop through predefined set of rules (defined in appsettins.json) and will execute command line from `Execute` property if `ref` value from payload matches `Match` value from the rule.
-If you [configured](https://developer.github.com/webhooks/securing/#validating-payloads-from-github) `Secret` for the webhook, it will compare value for the `X-Hub-Signature` header with the WebHookSecret environment valiable.
+It listens on the configured port (http://localhost:5000 by default) and have only one API endpoint `POST /api/webhook`. When it receives payload form GitHub, it will loop through predefined set of rules (defined in `appsettins.json`) and will execute command line from `Execute` property if `ref` value from payload matches `Match` value from the rule.
+If you [configured](https://developer.github.com/webhooks/securing/#validating-payloads-from-github) `Secret` for the webhook, it will compare value for the `X-Hub-Signature` header with the `WebHookSecret` environment valiable (can also be set in appsettings.config, but I would recomend keeping it as an envirunment variable).
 
-## How to run it?
-You can download self-contained application from for your platform:
-- Linux: 
-- Windows:
+## Run
 
-Copy it to the web-server, extract, and run.
+You can download self-contained application for your platform:
 
-You can expose it to the outside world but I would recommend setting up nginx with SSL certificat (for example from Let's Encrypt) as a reverse-proxy in front of the WebHook Runner
+- Linux-x64: https://github.com/drussilla/git-webhook-server/releases/download/0.1/linux-x64-v0.1.tar.gz
+- Windows-x64: https://github.com/drussilla/git-webhook-server/releases/download/0.1/win-x64-v0.1.zip
 
-If you decided to run it without nginx, do not forget to add rule in  the firewall (I hope you are using it) to allow access on the port 5000.
+Download:
+
+```bash
+wget https://github.com/drussilla/git-webhook-server/releases/download/0.1/linux-x64-v0.1.tar.gz
+```
+
+Make it executable:
+
+```bash
+chmod +x git-webhook-server
+```
+
+Run:
+
+```bash
+cd linux-x64
+./git-webhook-server --urls http://127.0.0.1:5000
+```
+
+You can expose it to the outside world but I would recommend setting up `nginx` with `SSL` certificat (for example from Let's Encrypt) as a reverse-proxy in front of the WebHook Runner
+
+If you decided to run it without nginx, do not forget to add rule in the `firewall` (I hope you are using it) to allow access on the port 5000.
+
+## Running as a deamon
+
+There are few ways to deamonize this copnsole app (actuially you can do the same with any console app)
+
+### Using Tmux
+
+Install [tmux](https://github.com/tmux/tmux/wiki) - a terminal multiplexer:
+
+```bash
+sudo apt-get install tmux
+```
+
+Run new tmux session:
+
+```bash
+tmux
+```
+
+Run console app inside tmux session:
+
+```bash
+cd linux-x64
+./git-webhook-server --urls http://127.0.0.1:5000
+```
+
+Detach from tmux session by pressing `Ctrl+B Ctrl+D`. Now you can exit your ssh session and the process will kipp running. When you login back, you can attach to the running tmux session by typing:
+
+```bash
+tmux attach
+```
+
+### Using supervisor
+
+If you do not want to run it manually everytime you reboot your machine or when the process is crashed, you can use [surepvisor](http://supervisord.org/) - system that allows its users to monitor and control a number of processes on UNIX-like operating systems.
+
+Install
+
+```bash
+sudo apt-get install supervisor
+```
+
+Create config file for your application
+
+```bash
+sudo nano /etc/supervisor/conf.d/git-webhook-server.conf
+```
+
+With the following content:
+
+```ini
+[program:git-webhook-server]
+command=su -c "/home/<username>/linux-x64/git-webhook-server --urls http://127.0.0.1:5000" <username>
+directory=/home/<username>/linux-x64
+autorestart=true
+autostart=true
+stdout_logfile=/home/<username>/linux-x64/out.log
+stderr_logfile=/home/<username>/linux-x64/err.log
+```
+
+**Note:**: Replace *\<username\>* with the actual username.
+
+Reload supoervisor:
+
+```bash
+sudo supervisorctl reload
+```
+
+To check the status of the app run:
+
+```bash
+sudo supervisorctl status
+```
 
 ## How to configure webhook in GitHub
 
@@ -24,7 +116,7 @@ Configure webhook in GitHub repository:
 
 - Set `Payload URL` to the publicly visible URL of the Webhook Runner (e.g. http://example.com:5000/api/webhook)
 - Set `Content type` to `application/json`
-- `SSL verification` based on your server confgig (I would strongly recomed setting up nginx with SSL certifiacte in front of the runner) 
+- `SSL verification` based on your server confgig (I would strongly recomed setting up nginx with SSL certifiacte in front of the runner)
 - Set `Just the push event.` because currently this is the only supported event type (GitHub will get `BadRequet` response for any other event types)
 - `Active` should be enabled
 
@@ -44,3 +136,42 @@ The second one will do run `start_dev.sh` script whenever something is pushed to
 - Create PR
 
 ## Examples
+
+### Simple CI CD pipeline for .net core web api
+
+In this example we are gonna configure webhook for this project. Everytime I push to master it will execute the following script on the server (`build_and_restart.sh`):
+
+```bash
+#!/bin/bash
+cd ~/git-webhook-server
+git reset --hard HEAD
+git pull
+supervisorctl stop git-webhook-server
+dotnet publish -r linux-x64 -o ~/linux-x64 -c Release
+supervisorctl start git-webhook-server
+```
+
+**Prerequisites:**
+
+- Git repo is cloned to `~/git-webhook-server`
+- Supervisor is installed and configured to run app from: `~/linux-x64` folder
+- GitHub WebHook is configured
+- `appsettings.json` has the following rule:
+
+```json
+{
+    "Name": "master",
+    "Match": "refs/heads/master",
+    "Execute": "build_and_restart.sh"
+},
+```
+
+- `build_and_restart.sh` script is in the `~/linux-x64` folder
+- You have permission to run supervisorctl as a regular user (`/etc/supervisor/supervisord.conf`):
+
+```ini
+[unix_http_server]
+file=/var/run/supervisor.sock
+chmod=0770
+chown=nobody:<username>
+```
