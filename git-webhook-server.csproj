@@ -5,5 +5,11 @@
     <RootNamespace>git_webhook_server</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Update="version.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 
 </Project>

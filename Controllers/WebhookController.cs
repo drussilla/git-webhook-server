@@ -27,6 +27,12 @@ namespace git_webhook_server.Controllers
             _log = log;
         }
 
+        [HttpGet("status")]
+        public IActionResult Status()
+        {
+            return Ok(System.IO.File.ReadAllText("version.txt"));
+        }
+
         // GET api/webhook
         [HttpPost]
         public async Task<IActionResult> Post()
