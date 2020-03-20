@@ -11,13 +11,13 @@ If you [configured](https://developer.github.com/webhooks/securing/#validating-p
 
 You can download self-contained application for your platform:
 
-- Linux-x64: https://github.com/drussilla/git-webhook-server/releases/download/0.1/linux-x64-v0.1.tar.gz
-- Windows-x64: https://github.com/drussilla/git-webhook-server/releases/download/0.1/win-x64-v0.1.zip
+- Linux-x64: https://github.com/drussilla/git-webhook-server/releases/download/0.2/linux-x64-v0.2.tar.gz
+- Windows-x64: https://github.com/drussilla/git-webhook-server/releases/download/0.2/win-x64-v0.2.zip
 
 Download:
 
 ```bash
-wget https://github.com/drussilla/git-webhook-server/releases/download/0.1/linux-x64-v0.1.tar.gz
+wget https://github.com/drussilla/git-webhook-server/releases/download/0.2/linux-x64-v0.2.tar.gz
 ```
 
 Make it executable:
@@ -30,7 +30,7 @@ Run:
 
 ```bash
 cd linux-x64
-./git-webhook-server --urls http://127.0.0.1:5000
+./git-webhook-server --urls http://0.0.0.0:5000
 ```
 
 You can expose it to the outside world but I would recommend setting up `nginx` with `SSL` certificat (for example from Let's Encrypt) as a reverse-proxy in front of the WebHook Runner
@@ -59,7 +59,7 @@ Run console app inside tmux session:
 
 ```bash
 cd linux-x64
-./git-webhook-server --urls http://127.0.0.1:5000
+./git-webhook-server --urls http://0.0.0.0:5000
 ```
 
 Detach from tmux session by pressing `Ctrl+B Ctrl+D`. Now you can exit your ssh session and the process will kipp running. When you login back, you can attach to the running tmux session by typing:
@@ -88,7 +88,7 @@ With the following content:
 
 ```ini
 [program:git-webhook-server]
-command=su -c "/home/<username>/linux-x64/git-webhook-server --urls http://127.0.0.1:5000" <username>
+command=su -c "/home/<username>/linux-x64/git-webhook-server --urls http://0.0.0.0:5000" <username>
 directory=/home/<username>/linux-x64
 autorestart=true
 autostart=true
