@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -59,8 +60,15 @@ namespace git_webhook_server.Controllers
                     {
                         _log.LogInformation($"Rule {rule.Name} matches by {rule.Match}.");
                         _log.LogInformation($"Start {rule.Execute}");
-                        System.Diagnostics.Process.Start(rule.Execute);
-                        return Ok();
+
+                        var startInfo = new ProcessStartInfo(rule.Execute)
+                        {
+                            UseShellExecute = false, 
+                            CreateNoWindow = true
+                        };
+
+                        Process.Start(startInfo);
+                        return Ok($"Rule {rule.Name} executed");
                     }
                 }
             }
@@ -71,7 +79,7 @@ namespace git_webhook_server.Controllers
             }
 
             _log.LogInformation("No matching rule found");
-            return Ok();
+            return Ok("No matching rule found");
         }
 
         private static PushEventPayload DeserializePayload(MemoryStream body)
