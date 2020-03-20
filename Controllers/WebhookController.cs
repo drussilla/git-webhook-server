@@ -41,8 +41,14 @@ namespace git_webhook_server.Controllers
             await using var body = new MemoryStream();
             await Request.Body.CopyToAsync(body);
 
-            if (!string.IsNullOrEmpty(_secrets.WebHookSecret) && Request.Headers.ContainsKey("X-Hub-Signature"))
+            if (!string.IsNullOrEmpty(_secrets.WebHookSecret))
             {
+                if (!Request.Headers.ContainsKey("X-Hub-Signature"))
+                {
+                    _log.LogError("Signature is not provided. X-Hub-Signature header is missing.");
+                    return BadRequest("Please sign payload. X-Hub-Signature header is missing.");
+                }
+
                 if (!IsValidSignature(Request.Headers["X-Hub-Signature"], body))
                 {
                     _log.LogError("Invalid signature");
