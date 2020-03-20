@@ -11,13 +11,13 @@ If you [configured](https://developer.github.com/webhooks/securing/#validating-p
 
 You can download self-contained application for your platform:
 
-- Linux-x64: https://github.com/drussilla/git-webhook-server/releases/download/0.2/linux-x64-v0.2.tar.gz
-- Windows-x64: https://github.com/drussilla/git-webhook-server/releases/download/0.2/win-x64-v0.2.zip
+- Linux-x64: https://github.com/drussilla/git-webhook-server/releases/download/0.3/linux-x64-v0.3.tar.gz
+- Windows-x64: https://github.com/drussilla/git-webhook-server/releases/download/0.3/win-x64-v0.3.zip
 
 Download:
 
 ```bash
-wget https://github.com/drussilla/git-webhook-server/releases/download/0.2/linux-x64-v0.2.tar.gz
+wget https://github.com/drussilla/git-webhook-server/releases/download/0.3/linux-x64-v0.3.tar.gz
 ```
 
 Make it executable:

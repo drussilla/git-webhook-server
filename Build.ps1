@@ -1,0 +1,2 @@
+﻿dotnet publish -r linux-x64 -c Release -o Build\linux-x64 -p:PublishTrimmed=true -p:PublishSingleFile=true
+dotnet publish -r win-x64 -c Release -o Build\win-x64 -p:PublishTrimmed=true -p:PublishSingleFile=true

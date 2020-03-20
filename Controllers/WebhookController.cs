@@ -30,7 +30,8 @@ namespace git_webhook_server.Controllers
         [HttpGet("status")]
         public IActionResult Status()
         {
-            return Ok(System.IO.File.ReadAllText("version.txt"));
+            var version = GetType().Assembly.GetName().Version.ToString();
+            return Ok(version);
         }
 
         // GET api/webhook
