@@ -25,8 +25,15 @@ jobs:
       run: dotnet test --no-restore --verbosity normal
     - name: Publish linux
       run: dotnet publish src/git-webhook-server.csproj -r linux-x64 -c Release -o Builds/linux-x64 -p:PublishTrimmed=true -p:PublishSingleFile=true
-    - name: Upload artifacts
+    - name: Publish win
+      run: dotnet publish src/git-webhook-server.csproj -r win-x64 -c Release -o Builds/win-x64 -p:PublishTrimmed=true -p:PublishSingleFile=true
+    - name: Upload linux artifacts 
       uses: actions/upload-artifact@v1
       with:
         name: linux-x64
         path: Builds/linux-x64
+    - name: Upload win artifacts 
+      uses: actions/upload-artifact@v1
+      with:
+        name: win-x64
+        path: Builds/win-x64
