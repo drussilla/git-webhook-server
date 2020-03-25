@@ -4,20 +4,20 @@ React to [GitHub webhook events](https://developer.github.com/webhooks/) and run
 
 ## Description
 
-It listens on the configured port (http://localhost:5000 by default) and have only one API endpoint `POST /api/webhook`. When it receives payload form GitHub, it will loop through predefined set of rules (defined in `appsettins.json`) and will execute command line from `Execute` property if `ref` value from payload matches `Match` value from the rule.
+It listens on the configured port (http://localhost:5000 by default) and have only one API endpoint `POST /api/webhook`. When it receives payload form GitHub, it will loop through defined set of rules (defined in `appsettins.json`) and will execute command line from `Execute` property if `ref` value from payload matches `Ref` value from the rule and `repository.url` from the payload matches `RepositoryUrl` from the rule.
 If you [configured](https://developer.github.com/webhooks/securing/#validating-payloads-from-github) `Secret` for the webhook, it will compare value for the `X-Hub-Signature` header with the `WebHookSecret` environment valiable (can also be set in appsettings.config, but I would recomend keeping it as an envirunment variable).
 
 ## Run
 
 You can download self-contained application for your platform:
 
-- Linux-x64: https://github.com/drussilla/git-webhook-server/releases/download/0.3/linux-x64-v0.3.tar.gz
-- Windows-x64: https://github.com/drussilla/git-webhook-server/releases/download/0.3/win-x64-v0.3.zip
+- Linux-x64: https://github.com/drussilla/git-webhook-server/releases/download/0.4/linux-x64-v0.4.tar.gz
+- Windows-x64: https://github.com/drussilla/git-webhook-server/releases/download/0.4/win-x64-v0.4.zip
 
 Download:
 
 ```bash
-wget https://github.com/drussilla/git-webhook-server/releases/download/0.3/linux-x64-v0.3.tar.gz
+wget https://github.com/drussilla/git-webhook-server/releases/download/0.4/linux-x64-v0.4.tar.gz
 ```
 
 Make it executable:
@@ -173,7 +173,8 @@ tmux new -d -s proxy ./build_and_restart.sh
 ```json
 {
     "Name": "master",
-    "Match": "refs/heads/master",
+    "Ref": "refs/heads/master",
+    "RepositoryUrl": "https://github.com/drussilla/git-webhook-server/"
     "Execute": "run_in_tmux.sh"
 },
 ```
