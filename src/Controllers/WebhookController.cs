@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using git_webhook_server.PayloadModels;
-using Microsoft.AspNetCore.Http;
+using git_webhook_server.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -16,14 +15,14 @@ namespace git_webhook_server.Controllers
     [Route("api/[controller]")]
     public class WebHookController : Controller
     {
-        private readonly WebHookOptions _options;
         private readonly SecretOptions _secrets;
+        private readonly IPushEventProcessor _pushEventProcessor;
         private readonly ILogger<WebHookController> _log;
 
-        public WebHookController(IOptions<WebHookOptions> options, IOptions<SecretOptions> secrets, ILogger<WebHookController> log)
+        public WebHookController(IPushEventProcessor pushEventProcessor, IOptions<SecretOptions> secrets, ILogger<WebHookController> log)
         {
-            _options = options.Value;
             _secrets = secrets.Value;
+            _pushEventProcessor = pushEventProcessor;
             _log = log;
         }
 
@@ -64,33 +63,11 @@ namespace git_webhook_server.Controllers
                 return BadRequest("Unsupported payload. Only push events are supported for now.");
             }
 
-            try
+            if (_pushEventProcessor.Process(payload))
             {
-                foreach (var rule in _options.Rules)
-                {
-                    _log.LogDebug($"Try rule {rule.Name}");
-                    if (payload.Ref.Equals(rule.Match, StringComparison.OrdinalIgnoreCase))
-                    {
-                        _log.LogInformation($"Rule {rule.Name} matches by {rule.Match}.");
-                        _log.LogInformation($"Start {rule.Execute}");
-
-                        var startInfo = new ProcessStartInfo(rule.Execute)
-                        {
-                            UseShellExecute = false, 
-                            CreateNoWindow = true
-                        };
-
-                        Process.Start(startInfo);
-                        return Ok($"Rule {rule.Name} executed");
-                    }
-                }
+                return Ok("Rule matched");
             }
-            catch (Exception ex)
-            {
-                _log.LogError(ex, "Unexpected error while trying to execute script");
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            }
-
+            
             _log.LogInformation("No matching rule found");
             return Ok("No matching rule found");
         }

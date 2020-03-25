@@ -3,9 +3,18 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>git_webhook_server</RootNamespace>
-    <AssemblyVersion>0.3.0.0</AssemblyVersion>
-    <Version>0.3.0</Version>
+    <AssemblyVersion>0.4.0.0</AssemblyVersion>
+    <Version>0.4.0</Version>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Remove="appsettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="appsettings.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>

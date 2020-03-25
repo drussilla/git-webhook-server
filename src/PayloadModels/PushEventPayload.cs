@@ -17,7 +17,7 @@ namespace git_webhook_server.PayloadModels
         [JsonPropertyName("full_name")]
         public string FullName { get; set; }
         [JsonPropertyName("html_url")]
-        public Uri HtmlUrl { get; set; }
-        public Uri Url { get; set; }
+        public string HtmlUrl { get; set; }
+        public string Url { get; set; }
     }
 }

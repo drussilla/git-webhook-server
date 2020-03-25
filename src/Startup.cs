@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using git_webhook_server.Services;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,10 @@ namespace git_webhook_server
             services.AddControllers();
             services.Configure<WebHookOptions>(Configuration);
             services.Configure<SecretOptions>(Configuration);
+
+            services.AddScoped<IRuleMatcher, RuleMatcher>();
+            services.AddScoped<IProcessExecutor, ProcessExecutor>();
+            services.AddScoped<IPushEventProcessor, PushEventProcessor>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
