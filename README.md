@@ -33,11 +33,23 @@ Create file `nano appsettings.json` with rules:
 
 ```json
 {
-    "Name": "master",
-    "Ref": "refs/heads/master",
-    "RepositoryUrl": "https://github.com/drussilla/git-webhook-server/",
-    "Execute": "run_in_tmux.sh"
-},
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "AllowedHosts": "*",
+  "Rules": [
+    {
+      "Name": "master git-webhook-server",
+      "Ref": "refs/heads/master",
+      "RepositoryUrl": "https://github.com/drussilla/git-webhook-server",
+      "Execute": "run_in_tmux.sh"
+    }
+  ]
+}
 ```
 
 Node: Do not forget to replace valus for `RepositoryUrl` and `Execute` properties.
