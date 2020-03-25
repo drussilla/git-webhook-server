@@ -2,6 +2,8 @@
 
 React to [GitHub webhook events](https://developer.github.com/webhooks/) and run custom scripts on your server. This is useful if you want to setup simple continious integration and\or deployment.
 
+![.NET Core](https://github.com/drussilla/git-webhook-server/workflows/.NET%20Core/badge.svg)
+
 ## Description
 
 It listens on the configured port (http://localhost:5000 by default) and have only one API endpoint `POST /api/webhook`. When it receives payload form GitHub, it will loop through defined set of rules (defined in `appsettins.json`) and will execute command line from `Execute` property if `ref` value from payload matches `Ref` value from the rule and `repository.url` from the payload matches `RepositoryUrl` from the rule.
@@ -23,13 +25,26 @@ wget https://github.com/drussilla/git-webhook-server/releases/download/0.4/linux
 Make it executable:
 
 ```bash
+cd linux-x64
 chmod +x git-webhook-server
 ```
+
+Create file `nano appsettings.json` with rules:
+
+```json
+{
+    "Name": "master",
+    "Ref": "refs/heads/master",
+    "RepositoryUrl": "https://github.com/drussilla/git-webhook-server/",
+    "Execute": "run_in_tmux.sh"
+},
+```
+
+Node: Do not forget to replace valus for `RepositoryUrl` and `Execute` properties.
 
 Run:
 
 ```bash
-cd linux-x64
 ./git-webhook-server --urls http://0.0.0.0:5000
 ```
 
@@ -174,7 +189,7 @@ tmux new -d -s proxy ./build_and_restart.sh
 {
     "Name": "master",
     "Ref": "refs/heads/master",
-    "RepositoryUrl": "https://github.com/drussilla/git-webhook-server/"
+    "RepositoryUrl": "https://github.com/drussilla/git-webhook-server/",
     "Execute": "run_in_tmux.sh"
 },
 ```
