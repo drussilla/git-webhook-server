@@ -22,6 +22,12 @@ Download:
 wget https://github.com/drussilla/git-webhook-server/releases/download/0.4/linux-x64-v0.4.tar.gz
 ```
 
+Extract:
+
+```bash
+tar -zxvf linux-x64-v0.4.tar.gz
+```
+
 Make it executable:
 
 ```bash
