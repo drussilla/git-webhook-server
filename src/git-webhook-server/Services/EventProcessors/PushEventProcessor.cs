@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Threading.Tasks;
 using git_webhook_server.PayloadModels;
+using git_webhook_server.Services.ProcessExecutor;
 using Microsoft.Extensions.Logging;
 
-namespace git_webhook_server.Services
+namespace git_webhook_server.Services.EventProcessors
 {
     public class PushEventProcessor : IPushEventProcessor
     {
@@ -18,24 +20,24 @@ namespace git_webhook_server.Services
             _log = log;
         }
 
-        public bool Process(PushEventPayload payload)
+        public async Task<EventProcessorResult> Process(PushEventPayload payload)
         {
             try
             {
                 var rule = _ruleMatcher.Match(payload.Ref, payload.Repository?.Url);
                 if (rule != null)
                 {
-                    _processExecutor.Execute(rule.Execute);
-                    return true;
+                    var executionResult = await _processExecutor.Execute(rule.Execute);
+                    return new EventProcessorResult(true, "Rule matched", executionResult, rule);
                 }
             }
             catch (Exception ex)
             {
                 _log.LogError(ex, "Unexpected error while trying to execute script");
-                return false;
+                return new EventProcessorResult(false, $"Unexpected error while trying to execute script: {ex.Message}");
             }
 
-            return false;
+            return new EventProcessorResult(false, "No matching rule");
         }
     }
 }

@@ -2,8 +2,11 @@
 using git_webhook_server;
 using git_webhook_server.PayloadModels;
 using git_webhook_server.Services;
+using git_webhook_server.Services.EventProcessors;
+using git_webhook_server.Services.ProcessExecutor;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace git_webhook_server_tests
@@ -11,7 +14,7 @@ namespace git_webhook_server_tests
     public class PushEventProcessorShould
     {
         [Fact]
-        public void ExecuteScript_WhenRuleIsMatched()
+        public async Task ExecuteScript_WhenRuleIsMatched()
         {
             // Arrange
             var processExecutor = new Mock<IProcessExecutor>();
@@ -30,19 +33,19 @@ namespace git_webhook_server_tests
             var sup = new PushEventProcessor(processExecutor.Object, ruleMatcher.Object, new NullLogger<PushEventProcessor>());
 
             // Act
-            var result = sup.Process(new PushEventPayload
+            var result = await sup.Process(new PushEventPayload
             {
                 Ref = "something", Repository = new Repository { Url = "url" }
             });
 
             // Assert
-            result.Should().BeTrue();
+            result.Success.Should().Be(true);
             ruleMatcher.Verify();
             processExecutor.Verify();
         }
 
         [Fact]
-        public void NotExecuteAnything_WhenRuleIsNotMatched()
+        public async Task NotExecuteAnything_WhenRuleIsNotMatched()
         {
             // Arrange
             var processExecutor = new Mock<IProcessExecutor>();
@@ -56,13 +59,13 @@ namespace git_webhook_server_tests
             var sup = new PushEventProcessor(processExecutor.Object, ruleMatcher.Object, new NullLogger<PushEventProcessor>());
 
             // Act
-            var result = sup.Process(new PushEventPayload
+            var result = await sup.Process(new PushEventPayload
             {
                 Ref = "something", Repository = new Repository { Url = "url" }
             });
 
             // Assert
-            result.Should().BeFalse();
+            result.Success.Should().Be(false);
             ruleMatcher.Verify();
             processExecutor.Verify(x => x.Execute(It.IsAny<string>()), Times.Never);
         }

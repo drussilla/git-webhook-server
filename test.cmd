@@ -1,0 +1,1 @@
+ping -n 2 ya.ru

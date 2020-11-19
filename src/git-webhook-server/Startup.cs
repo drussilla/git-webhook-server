@@ -1,4 +1,6 @@
 ﻿using git_webhook_server.Services;
+using git_webhook_server.Services.EventProcessors;
+using git_webhook_server.Services.ProcessExecutor;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -20,6 +22,7 @@ namespace git_webhook_server
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
             services.Configure<WebHookOptions>(Configuration);
             services.Configure<SecretOptions>(Configuration);
 
@@ -34,13 +37,18 @@ namespace git_webhook_server
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseWebAssemblyDebugging();
             }
+
+            app.UseBlazorFrameworkFiles();
+            app.UseStaticFiles();
 
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapFallbackToFile("index.html");
             });
         }
     }

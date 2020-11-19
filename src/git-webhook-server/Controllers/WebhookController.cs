@@ -4,8 +4,10 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using git_webhook_server.Models;
 using git_webhook_server.PayloadModels;
 using git_webhook_server.Services;
+using git_webhook_server.Services.EventProcessors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -37,20 +39,26 @@ namespace git_webhook_server.Controllers
         [HttpPost]
         public async Task<IActionResult> Post()
         {
+            var eventLog = new EventLog();
+            
             // read body to a memory stream so we can reuse it multiple times
             await using var body = new MemoryStream();
             await Request.Body.CopyToAsync(body);
+
+            await eventLog.ReadPayload(body);
 
             if (!string.IsNullOrEmpty(_secrets.WebHookSecret))
             {
                 if (!Request.Headers.ContainsKey("X-Hub-Signature"))
                 {
+                    eventLog.Error("Signature is not provided. X-Hub-Signature header is missing.");
                     _log.LogError("Signature is not provided. X-Hub-Signature header is missing.");
                     return BadRequest("Please sign payload. X-Hub-Signature header is missing.");
                 }
 
                 if (!IsValidSignature(Request.Headers["X-Hub-Signature"], body))
                 {
+                    eventLog.Error("Invalid signature.");
                     _log.LogError("Invalid signature");
                     return BadRequest("Invalid signature");
                 }
@@ -60,10 +68,16 @@ namespace git_webhook_server.Controllers
 
             if (payload?.Ref == null)
             {
+                eventLog.Error("Unsupported payload. Ref property is empty.");
                 return BadRequest("Unsupported payload. Only push events are supported for now.");
             }
 
-            if (_pushEventProcessor.Process(payload))
+            var result = await _pushEventProcessor.Process(payload);
+            eventLog.ReadResult(result);
+            
+
+
+            if (result.Success)
             {
                 return Ok("Rule matched");
             }
