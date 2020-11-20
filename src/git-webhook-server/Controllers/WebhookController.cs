@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using git_webhook_server.Models;
 using git_webhook_server.PayloadModels;
 using git_webhook_server.Services;
+using git_webhook_server.Services.EventLogService;
 using git_webhook_server.Services.EventProcessors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -19,12 +21,18 @@ namespace git_webhook_server.Controllers
     {
         private readonly SecretOptions _secrets;
         private readonly IPushEventProcessor _pushEventProcessor;
+        private readonly IEventLogService _eventLogService;
         private readonly ILogger<WebHookController> _log;
 
-        public WebHookController(IPushEventProcessor pushEventProcessor, IOptions<SecretOptions> secrets, ILogger<WebHookController> log)
+        public WebHookController(
+            IPushEventProcessor pushEventProcessor, 
+            IEventLogService eventLogService,
+            IOptions<SecretOptions> secrets, 
+            ILogger<WebHookController> log)
         {
             _secrets = secrets.Value;
             _pushEventProcessor = pushEventProcessor;
+            _eventLogService = eventLogService;
             _log = log;
         }
 
@@ -39,19 +47,22 @@ namespace git_webhook_server.Controllers
         [HttpPost]
         public async Task<IActionResult> Post()
         {
-            var eventLog = new EventLog();
+            string body;
+            using (var reader = new StreamReader(Request.Body))
+            {
+                body = await reader.ReadToEndAsync();
+            }
+
+            var headers = string.Join('\n', Request.Headers.Select(x => $"{x.Key}: {x.Value}"));
+
+            var eventLog = await _eventLogService.CreateAsync(body, headers);
             
-            // read body to a memory stream so we can reuse it multiple times
-            await using var body = new MemoryStream();
-            await Request.Body.CopyToAsync(body);
-
-            await eventLog.ReadPayload(body);
-
             if (!string.IsNullOrEmpty(_secrets.WebHookSecret))
             {
                 if (!Request.Headers.ContainsKey("X-Hub-Signature"))
                 {
                     eventLog.Error("Signature is not provided. X-Hub-Signature header is missing.");
+                    await _eventLogService.UpdateAsync(eventLog);
                     _log.LogError("Signature is not provided. X-Hub-Signature header is missing.");
                     return BadRequest("Please sign payload. X-Hub-Signature header is missing.");
                 }
@@ -59,6 +70,7 @@ namespace git_webhook_server.Controllers
                 if (!IsValidSignature(Request.Headers["X-Hub-Signature"], body))
                 {
                     eventLog.Error("Invalid signature.");
+                    await _eventLogService.UpdateAsync(eventLog);
                     _log.LogError("Invalid signature");
                     return BadRequest("Invalid signature");
                 }
@@ -69,38 +81,36 @@ namespace git_webhook_server.Controllers
             if (payload?.Ref == null)
             {
                 eventLog.Error("Unsupported payload. Ref property is empty.");
+                await _eventLogService.UpdateAsync(eventLog);
                 return BadRequest("Unsupported payload. Only push events are supported for now.");
             }
 
             var result = await _pushEventProcessor.Process(payload);
             eventLog.ReadResult(result);
+            await _eventLogService.UpdateAsync(eventLog);
             
-
-
             if (result.Success)
             {
-                return Ok("Rule matched");
+                return Ok("Rule matched. Work queued");
             }
             
             _log.LogInformation("No matching rule found");
             return Ok("No matching rule found");
         }
 
-        private static PushEventPayload DeserializePayload(MemoryStream body)
+        private static PushEventPayload DeserializePayload(string body)
         {
-            body.Seek(0, SeekOrigin.Begin);
-            return JsonSerializer.Deserialize<PushEventPayload>(new ReadOnlySpan<byte>(body.ToArray()),
+            return JsonSerializer.Deserialize<PushEventPayload>(body,
                 new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
         }
 
-        private bool IsValidSignature(string githubSignature, MemoryStream body)
+        private bool IsValidSignature(string githubSignature, string body)
         {
             using HMACSHA1 hmac = new HMACSHA1(Encoding.UTF8.GetBytes(_secrets.WebHookSecret));
-            body.Seek(0, SeekOrigin.Begin);
-            var hash = hmac.ComputeHash(body);
+            var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(body));
             var hashString = HashEncode(hash);
             return githubSignature.Equals($"sha1={hashString}", StringComparison.OrdinalIgnoreCase);
         }

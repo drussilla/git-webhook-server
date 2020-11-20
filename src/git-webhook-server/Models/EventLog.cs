@@ -1,31 +1,27 @@
 ﻿using git_webhook_server.Services.EventProcessors;
 using git_webhook_server.Services.ProcessExecutor;
 using System;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace git_webhook_server.Models
 {
     public class EventLog
     {
-        public EventLog()
+        public EventLog(string payload, string headers)
         {
+            Id = Guid.NewGuid();
             EventReceivedOn = DateTime.UtcNow;
+            Payload = payload;
+            Headers = headers;
         }
 
+        public Guid Id { get; set; }
         public DateTime EventReceivedOn { get; set; }
         public string Payload { get; set; }
+        public string Headers { get; set; }
         public WebHookRule MatchedRule { get; set; }
         public ProcessExecutionResult ExecutionResult { get; set; }
         public string StatusMessage { get; set; }
         public bool Succeeded { get; set; }
-
-        public async Task ReadPayload(MemoryStream body)
-        {
-            using var reader = new StreamReader(body, Encoding.UTF8);
-            Payload = await reader.ReadToEndAsync();
-        }
 
         public void Error(string message)
         {
