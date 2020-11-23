@@ -2,3 +2,5 @@ obj/
 bin/
 .vs/
 Builds/
+data.db
+debug.log

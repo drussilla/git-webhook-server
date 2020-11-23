@@ -1,0 +1,31 @@
+﻿.event-log-item-container {
+}
+
+.event-log-item-container:hover {
+    background: #f7f7f7;
+}
+
+.event-log-item-container.selected {
+    background: #f7f7f7;
+}
+
+.underscore {
+    width: 100%;
+    height: 1px;
+    color: #eef1f6;
+    padding: 0;
+    margin: 0;
+}
+
+.selected > .underscore {
+    color: #bcc2c4;
+}
+
+.event-log-item {
+    margin: 5px 15px 5px 15px;
+    padding-top: 5px;
+}
+
+.status-message {
+    color: #9b4dca;
+}

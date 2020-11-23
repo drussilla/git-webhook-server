@@ -1,6 +1,11 @@
-﻿using git_webhook_server.Services;
+﻿using git_webhook_server.Models;
+using git_webhook_server.Repositories;
+using git_webhook_server.Services;
+using git_webhook_server.Services.EventProcessors;
+using git_webhook_server.Services.ProcessExecutor;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -20,12 +25,20 @@ namespace git_webhook_server
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddDbContextFactory<DatabaseContext>(options => options.UseSqlite("Data Source=data.db;"));
+
             services.Configure<WebHookOptions>(Configuration);
             services.Configure<SecretOptions>(Configuration);
+
+            services.AddHostedService<ExecutionRequestProcessor>();
 
             services.AddScoped<IRuleMatcher, RuleMatcher>();
             services.AddScoped<IProcessExecutor, ProcessExecutor>();
             services.AddScoped<IPushEventProcessor, PushEventProcessor>();
+            services.AddScoped<IEventLogRepository, EventLogRepository>();
+            services.AddScoped<IExecutionRequestRepository, ExecutionRequestRepository>();
+
+            services.AddDatabaseDeveloperPageExceptionFilter();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -34,13 +47,18 @@ namespace git_webhook_server
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseWebAssemblyDebugging();
             }
+
+            app.UseBlazorFrameworkFiles();
+            app.UseStaticFiles();
 
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapFallbackToFile("index.html");
             });
         }
     }
