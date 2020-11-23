@@ -15,7 +15,7 @@ namespace git_webhook_server.Services.ProcessExecutor
         string filename,
         string arguments = null,
         string workingDirectory = null,
-        int? timeout = null,
+        CancellationToken cancellationToken = default,
         TextWriter outputTextWriter = null,
         TextWriter errorTextWriter = null)
         {
@@ -33,13 +33,9 @@ namespace git_webhook_server.Services.ProcessExecutor
                 }
             })
             {
-                var cancellationTokenSource = timeout.HasValue ?
-                    new CancellationTokenSource(timeout.Value) :
-                    new CancellationTokenSource();
-
                 process.Start();
 
-                var tasks = new List<Task>() { process.WaitForExitAsync(cancellationTokenSource.Token) };
+                var tasks = new List<Task>() { process.WaitForExitAsync(cancellationToken) };
                 if (outputTextWriter != null)
                 {
                     tasks.Add(ReadAsync(
@@ -50,7 +46,7 @@ namespace git_webhook_server.Services.ProcessExecutor
                         },
                         x => process.OutputDataReceived -= x,
                         outputTextWriter,
-                        cancellationTokenSource.Token));
+                        cancellationToken));
                 }
 
                 if (errorTextWriter != null)
@@ -63,7 +59,7 @@ namespace git_webhook_server.Services.ProcessExecutor
                         },
                         x => process.ErrorDataReceived -= x,
                         errorTextWriter,
-                        cancellationTokenSource.Token));
+                        cancellationToken));
                 }
 
                 await Task.WhenAll(tasks);

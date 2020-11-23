@@ -1,6 +1,6 @@
 ﻿using git_webhook_server.Models;
+using git_webhook_server.Repositories;
 using git_webhook_server.Services;
-using git_webhook_server.Services.EventLogService;
 using git_webhook_server.Services.EventProcessors;
 using git_webhook_server.Services.ProcessExecutor;
 using Microsoft.AspNetCore.Builder;
@@ -30,10 +30,13 @@ namespace git_webhook_server
             services.Configure<WebHookOptions>(Configuration);
             services.Configure<SecretOptions>(Configuration);
 
+            services.AddHostedService<ExecutionRequestProcessor>();
+
             services.AddScoped<IRuleMatcher, RuleMatcher>();
             services.AddScoped<IProcessExecutor, ProcessExecutor>();
             services.AddScoped<IPushEventProcessor, PushEventProcessor>();
-            services.AddScoped<IEventLogService, EventLogService>();
+            services.AddScoped<IEventLogRepository, EventLogRepository>();
+            services.AddScoped<IExecutionRequestRepository, ExecutionRequestRepository>();
 
             services.AddDatabaseDeveloperPageExceptionFilter();
         }

@@ -1,1 +1,1 @@
-ping -n 2 ya.ru
+ping -n 10 ya.ru

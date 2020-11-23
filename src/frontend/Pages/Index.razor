@@ -1,7 +1,22 @@
 ﻿@page "/"
+@using shared
+@inject HttpClient Http
 
-<h1>Hello, world!</h1>
+@if (_eventLogItems == null)
+{
+    <div>Loading...</div>
+}
+else
+{
+    <EventLogList Items="@_eventLogItems"/>
+}
 
-Welcome to your new app.
+@code {
+    private EventLogItem[] _eventLogItems;
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+    protected override async Task OnInitializedAsync()
+    {
+        _eventLogItems = await Http.GetFromJsonAsync<EventLogItem[]>("api/EventLog");
+    }
+}
+

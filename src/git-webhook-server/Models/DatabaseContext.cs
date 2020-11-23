@@ -7,6 +7,8 @@ namespace git_webhook_server.Models
     public class DatabaseContext : DbContext
     {
         public DbSet<EventLog> EventLogs { get; set; }
+        
+        public DbSet<ExecutionRequest> ExecutionRequests { get; set; }
 
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
         {
@@ -15,6 +17,12 @@ namespace git_webhook_server.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder
+                .Entity<EventLog>()
+                .HasOne(x => x.ExecutionRequest)
+                .WithOne(x => x.EventLog)
+                .HasForeignKey<ExecutionRequest>(x => x.EventLogId);
 
             modelBuilder
                 .Entity<EventLog>()

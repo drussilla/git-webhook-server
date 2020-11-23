@@ -14,9 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="appsettings.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
+    <None Include="appsettings.json" />
   </ItemGroup>
 
   <ItemGroup>

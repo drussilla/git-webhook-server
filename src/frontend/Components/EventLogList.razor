@@ -1,0 +1,58 @@
+﻿@using shared
+@using Humanizer
+
+<div class="container">
+    <div class="row">
+        <div class="column column-33">
+            @if (Items == null)
+            {
+                <div>Loading...</div>
+            }
+            else
+            {
+                foreach (var item in Items)
+                {
+                    <div class="event-log-item-container @(item == SelectedItem ? "selected" : "")" @onclick="@(e => ItemClicked(item))">
+                        <div class="event-log-item">
+                            <div class="status-message">@item.StatusMessage</div>
+                            <div class="date">@item.EventReceivedOn.Humanize() at @item.EventReceivedOn.ToString("hh:mm:ss")</div>
+                        </div>
+                        <hr class="underscore"/>
+                    </div>
+                }
+            }
+
+        </div>
+        <div class="column">
+            @if (Items == null || Items.Length == 0)
+            {
+                <div>Nothing to display</div>
+            }
+            else
+            {
+                <EventLogDetails Item="SelectedItem"></EventLogDetails>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        if (Items.Length > 0)
+        {
+            SelectedItem = Items[0];
+        }
+    }
+
+    [Parameter]
+    public EventLogItem[] Items { get; set; }
+
+    private EventLogItem SelectedItem { get; set; }
+
+    private void ItemClicked(EventLogItem item)
+    {
+        SelectedItem = item;
+    }
+}

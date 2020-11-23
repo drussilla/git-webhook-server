@@ -1,0 +1,21 @@
+﻿<div class="container">
+    <div class="row header">
+        <p class="title" @onclick="Expand">@Title</p>
+    </div>
+    <div class="row content @(_expanded ? "expanded" : "collapsed")">@Content</div>
+</div>
+
+@code {
+    private bool _expanded = false;
+    
+    [Parameter]
+    public string Title { get; set; }
+    
+    [Parameter]
+    public string Content { get; set; }
+
+    private void Expand()
+    {
+        _expanded = !_expanded;
+    }
+}

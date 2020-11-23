@@ -1,22 +1,24 @@
 ﻿using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace git_webhook_server.Services.ProcessExecutor
 {
     public class ProcessExecutor : IProcessExecutor
     {
-        public async Task<ProcessExecutionResult> Execute(string commandline)
+        public async Task<ProcessExecutionResult> Execute(string commandline, CancellationToken token)
         {
-            using var outputMemoryStream = new MemoryStream();
-            using var outputTextWriter = new StreamWriter(outputMemoryStream);
+            await using var outputMemoryStream = new MemoryStream();
+            await using var outputTextWriter = new StreamWriter(outputMemoryStream);
 
-            using var errorMemoryStream = new MemoryStream();
-            using var errorTextWriter = new StreamWriter(errorMemoryStream);
+            await using var errorMemoryStream = new MemoryStream();
+            await using var errorTextWriter = new StreamWriter(errorMemoryStream);
 
             var exitCode = await AsyncProcessExecutor.StartProcess(
                 commandline, 
                 outputTextWriter: outputTextWriter,
-                errorTextWriter: errorTextWriter);
+                errorTextWriter: errorTextWriter,
+                cancellationToken: token);
 
             await outputTextWriter.FlushAsync();
             await errorTextWriter.FlushAsync();

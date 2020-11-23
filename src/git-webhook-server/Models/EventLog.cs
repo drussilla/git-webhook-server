@@ -21,7 +21,9 @@ namespace git_webhook_server.Models
         public WebHookRule MatchedRule { get; set; }
         public ProcessExecutionResult ExecutionResult { get; set; }
         public string StatusMessage { get; set; }
-        public bool Succeeded { get; set; }
+        public bool? Succeeded { get; set; }
+        
+        public ExecutionRequest ExecutionRequest { get; set; }
 
         public void Error(string message)
         {
@@ -29,18 +31,11 @@ namespace git_webhook_server.Models
             StatusMessage = message;
         }
 
-        public void Success(string message)
-        {
-            Succeeded = true;
-            StatusMessage = message;
-        }
-
         internal void ReadResult(EventProcessorResult result)
         {
-            Succeeded = result.Success;
+            Succeeded = result.Success == false ? false : null;
             StatusMessage = result.Message;
             MatchedRule = result.MatchedRule;
-            ExecutionResult = result.ExecutionResult;
         }
     }
 }

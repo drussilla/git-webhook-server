@@ -36,7 +36,6 @@ namespace git_webhook_server
                 {
                     var contextFactory = services.GetRequiredService<IDbContextFactory<DatabaseContext>>();
                     using var context = contextFactory.CreateDbContext();
-                    context.Database.EnsureCreated();
                     context.Database.Migrate();
 
                 }

@@ -1,0 +1,22 @@
+﻿@using shared
+<div class="container">
+    <div>@Item.Id</div>
+    <div><b>Status: </b>@Status()</div>
+    <CollapseItem Title="Payload" Content="@Item.Payload"/>
+    <CollapseItem Title="Output" Content="@Item.CommandOutput"/>
+</div>
+
+@code {
+    [Parameter]
+    public EventLogItem Item { get; set; }
+
+    private string Status()
+    {
+        return Item.Succeeded switch
+        {
+            null => "In progress",
+            true => "Succeeded",
+            false => "Failed"
+        };
+    }
+}
