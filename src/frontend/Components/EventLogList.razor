@@ -1,9 +1,9 @@
 ﻿@using shared
 @using Humanizer
 
-<div class="container">
+<div class="wide container">
     <div class="row">
-        <div class="column column-33">
+        <div class="column column-25">
             @if (Items == null)
             {
                 <div>Loading...</div>
@@ -23,7 +23,7 @@
             }
 
         </div>
-        <div class="column">
+        <div class="column column-75">
             @if (Items == null || Items.Length == 0)
             {
                 <div>Nothing to display</div>

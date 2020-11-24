@@ -5,3 +5,13 @@
 .content {
     overflow-wrap: anywhere;
 }
+
+.title {
+    cursor: pointer;
+}
+
+.title-text
+{
+    margin-right: 10px;
+    display: inline;
+}

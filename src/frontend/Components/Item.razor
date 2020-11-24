@@ -1,0 +1,16 @@
+﻿@if (!string.IsNullOrWhiteSpace(Value))
+{
+    <div class="container">
+        <div class="row">
+            <div class="column column-25"><b>@Title</b></div>
+            <div class="column column-75">@Value</div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Title { get; set; }
+    [Parameter]
+    public string Value { get; set; }
+}

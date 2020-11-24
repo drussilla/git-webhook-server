@@ -87,6 +87,7 @@ namespace git_webhook_server.Repositories
 
             var eventLogItem = await context.EventLogs.FirstAsync(x => x.Id == eventLog, token);
             eventLogItem.StatusMessage = $"\"{rule.Name}\" rule matched";
+            eventLogItem.MatchedRule = rule;
             await context.SaveChangesAsync(token);
         }
     }

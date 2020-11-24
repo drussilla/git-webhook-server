@@ -1,0 +1,7 @@
+html {
+    overflow-y: scroll;
+}
+
+.container {
+    max-width: 152rem;
+}

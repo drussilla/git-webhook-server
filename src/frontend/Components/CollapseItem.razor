@@ -1,9 +1,26 @@
-﻿<div class="container">
-    <div class="row header">
-        <p class="title" @onclick="Expand">@Title</p>
+﻿@if (!string.IsNullOrWhiteSpace(Content))
+{
+    <div class="container">
+        <div class="row header">
+            <div class="column title" @onclick="Expand">
+                <div class="title-text">@Title</div>
+                @if (_expanded)
+                {
+                    <i class="fas fa-chevron-up"></i>
+                }
+                else
+                {
+                    <i class='fas fa-chevron-down'></i>
+                }
+            </div>
+        </div>
+        <div class="row content @(_expanded ? "expanded" : "collapsed")">
+            <div class="column">
+                <pre><code>@Content</code></pre>
+            </div>
+        </div>
     </div>
-    <div class="row content @(_expanded ? "expanded" : "collapsed")">@Content</div>
-</div>
+}
 
 @code {
     private bool _expanded = false;
