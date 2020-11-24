@@ -1,9 +1,15 @@
 ﻿@using shared
 <div class="container">
-    <div>@Item.Id</div>
-    <div><b>Status: </b>@Status()</div>
+    <Item Title="Id" Value="@Item.Id.ToString()"/>
+    <Item Title="Status" Value="@Status()"/>
+    <Item Title="Message" Value="@Item.StatusMessage"/>
+    <Item Title="Rule" Value="@Item.WebHookRuleName"/>
+    <Item Title="Command" Value="@Item.WebHookRuleCommand"/>
+    <Item Title="Exit Code" Value="@Item.ExitCode?.ToString()" />
     <CollapseItem Title="Payload" Content="@Item.Payload"/>
+    <CollapseItem Title="Headers" Content="@Item.Headers"/>
     <CollapseItem Title="Output" Content="@Item.CommandOutput"/>
+    <CollapseItem Title="Error" Content="@Item.CommandError"/>
 </div>
 
 @code {
