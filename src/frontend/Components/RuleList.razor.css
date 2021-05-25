@@ -1,12 +1,12 @@
-﻿.event-log-item-container {
+﻿.item-container {
     cursor: pointer;
 }
 
-.event-log-item-container:hover {
+.item-container:hover {
     background: #f7f7f7;
 }
 
-.event-log-item-container.selected {
+.item-container.selected {
     background: #f7f7f7;
 }
 
@@ -22,7 +22,7 @@
     color: #bcc2c4;
 }
 
-.event-log-item {
+.item {
     margin: 5px 15px 5px 15px;
     padding-top: 5px;
 }

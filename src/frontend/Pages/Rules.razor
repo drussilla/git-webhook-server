@@ -1,0 +1,22 @@
+﻿@page  "/rules"
+@using shared
+@inject HttpClient _http
+
+@if (_ruleItems == null)
+{
+    <div>Loading...</div>
+}
+else
+{
+    <RuleList Items="@_ruleItems"></RuleList>
+}
+
+@code {
+    private RuleItem[] _ruleItems;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _ruleItems = await _http.GetFromJsonAsync<RuleItem[]>("api/Rule");
+    }
+}
+

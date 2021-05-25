@@ -16,7 +16,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "git-webhook-server-tests", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "frontend", "src\frontend\frontend.csproj", "{1E3BF9B9-5CB4-455C-8B43-1BC349D0CB6C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "shared", "src\shared\shared.csproj", "{D0FBB0DE-5320-4CE1-8A7C-5C48C8408441}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "shared", "src\shared\shared.csproj", "{D0FBB0DE-5320-4CE1-8A7C-5C48C8408441}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

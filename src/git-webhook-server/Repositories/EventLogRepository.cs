@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using git_webhook_server.Models;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +9,8 @@ namespace git_webhook_server.Repositories
 {
     public interface IEventLogRepository
     {
-        Task<EventLog> CreateAsync(string payload, string headers);
+        Task<EventLog> CreateFromPayloadAsync(string payload, string headers, CancellationToken token);
+        Task<EventLog> CreateManualAsync(CancellationToken token);
         Task UpdateAsync(EventLog eventLog);
         Task<List<EventLog>> Get(int itemsToReturn);
     }
@@ -22,14 +24,19 @@ namespace git_webhook_server.Repositories
             _dbContextFactory = dbContextFactory;
         }
 
-        public async Task<EventLog> CreateAsync(string payload, string headers) 
+        public async Task<EventLog> CreateFromPayloadAsync(string payload, string headers, CancellationToken token) 
         {
             var eventLog = new EventLog(payload, headers);
             await using var context = _dbContextFactory.CreateDbContext();
-            await context.EventLogs.AddAsync(eventLog);
-            await context.SaveChangesAsync();
+            await context.EventLogs.AddAsync(eventLog, token);
+            await context.SaveChangesAsync(token);
 
             return eventLog;
+        }
+
+        public Task<EventLog> CreateManualAsync(CancellationToken token)
+        {
+            return CreateFromPayloadAsync("Manually triggered", "-", token);
         }
 
         public async Task UpdateAsync(EventLog eventLog)

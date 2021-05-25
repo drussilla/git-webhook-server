@@ -1,6 +1,6 @@
 ﻿@page "/"
 @using shared
-@inject HttpClient Http
+@inject HttpClient _http
 
 @if (_eventLogItems == null)
 {
@@ -13,10 +13,10 @@ else
 
 @code {
     private EventLogItem[] _eventLogItems;
-
+    
     protected override async Task OnInitializedAsync()
     {
-        _eventLogItems = await Http.GetFromJsonAsync<EventLogItem[]>("api/EventLog");
+        _eventLogItems = await _http.GetFromJsonAsync<EventLogItem[]>("api/EventLog");
     }
 }
 

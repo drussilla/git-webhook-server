@@ -54,7 +54,7 @@ namespace git_webhook_server.Controllers
 
             var headers = string.Join('\n', Request.Headers.Select(x => $"{x.Key}: {x.Value}"));
 
-            var eventLog = await _eventLogRepository.CreateAsync(body, headers);
+            var eventLog = await _eventLogRepository.CreateFromPayloadAsync(body, headers, token);
             
             if (!string.IsNullOrEmpty(_secrets.WebHookSecret))
             {

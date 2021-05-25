@@ -1,0 +1,56 @@
+﻿@using shared
+
+<div class="wide container">
+    <div class="row">
+        <div class="column column-25">
+            @if (Items == null)
+            {
+                <div>Loading...</div>
+            }
+            else
+            {
+                foreach (var item in Items)
+                {
+                    <div class="item-container @(item == SelectedItem ? "selected" : "")" @onclick="@(e => ItemClicked(item))">
+                        <div class="item">
+                            <div class="status-message">@item.Name</div>
+                        </div>
+                        <hr class="underscore" />
+                    </div>
+                }
+            }
+
+        </div>
+        <div class="column column-75">
+            @if (Items == null || Items.Length == 0)
+            {
+                <div>Nothing to display</div>
+            }
+            else
+            {
+                <RuleDetail Item="SelectedItem"></RuleDetail>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        if (Items.Length > 0)
+        {
+            SelectedItem = Items[0];
+        }
+    }
+
+    [Parameter]
+    public RuleItem[] Items { get; set; }
+
+    private RuleItem SelectedItem { get; set; }
+
+    private void ItemClicked(RuleItem item)
+    {
+        SelectedItem = item;
+    }
+}

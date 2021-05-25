@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using git_webhook_server.Models;
 using git_webhook_server.PayloadModels;
 using git_webhook_server.Repositories;
 using Microsoft.Extensions.Logging;

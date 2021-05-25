@@ -1,0 +1,28 @@
+﻿@using shared
+@inject HttpClient _http
+@inject NavigationManager _navigationManager
+
+<div class="container">
+    <Item Title="Name" Value="@Item.Name" />
+    <Item Title="Command to execute" Value="@Item.Execute" />
+    <Item Title="Matching branch" Value="@Item.Ref" />
+    <Item Title="Repo" Value="@Item.RepositoryUrl" />
+    <button @onclick="RunRule">Run</button>
+</div>
+
+@code {
+    [Parameter]
+    public RuleItem Item { get; set; }
+
+    public string LastRunResult { get; set; }
+
+    private async Task RunRule()
+    {
+        var result = await _http.PostAsync("api/Rule", new FormUrlEncodedContent(new [] { new KeyValuePair<string, string>("ruleName", Item.Name) }));
+        if (result.IsSuccessStatusCode)
+        {
+            _navigationManager.NavigateTo("/");
+        }
+    }
+
+}
