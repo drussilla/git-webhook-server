@@ -74,6 +74,42 @@ If you decided to run it without nginx, do not forget to add rule in the `firewa
 
 There are few ways to deamonize this copnsole app (actuially you can do the same with any console app)
 
+### Systemd
+
+Create `/etc/systemd/system/git-webhook-runner.service`
+
+```bash
+sudo nano /etc/systemd/system/git-webhook-runner.service
+```
+
+with the following content
+
+```ini
+[Unit]
+Description=Git-Webhook-Runner
+After=network.target
+
+[Service]
+User=<username>
+WorkingDirectory=/home/<username>/linux-x64
+ExecStart=/home/<username>/linux-x64/git-webhook-server
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable it to start automatically on startup
+
+```bash
+sudo systemctl enable
+```
+
+Start the service
+
+```bash
+sudo systemctl start git-webhoos-server
+```
+
 ### Using Tmux
 
 Install [tmux](https://github.com/tmux/tmux/wiki) - a terminal multiplexer:
